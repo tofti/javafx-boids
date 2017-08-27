@@ -43,7 +43,7 @@ public class Boids extends Application {
 
         double aligmentWeight;
         double seperationWeight;
-        double cohesionWeigh;
+        double cohesionWeight;
 
         boolean colorSensitive;
 
@@ -84,7 +84,7 @@ public class Boids extends Application {
 
             this.setAligmentWeight(DEFAULT_WEIGHT);
             this.setSeperationWeight(DEFAULT_WEIGHT);
-            this.setCohesionWeigh(DEFAULT_WEIGHT);
+            this.setCohesionWeight(DEFAULT_WEIGHT);
             this.setColorSensitive(COLOR_SENSITIVE_DEFAULT);
 
             this.sphere = new Sphere(RADIUS);
@@ -105,8 +105,8 @@ public class Boids extends Application {
             this.seperationWeight = seperationWeight;
         }
 
-        public void setCohesionWeigh(double cohesionWeigh) {
-            this.cohesionWeigh = cohesionWeigh;
+        public void setCohesionWeight(double cohesionWeight) {
+            this.cohesionWeight = cohesionWeight;
         }
 
         public double getXBound() {
@@ -139,7 +139,7 @@ public class Boids extends Application {
             List<Boid> others = Lists.newArrayList(all);
             others.remove(this);
 
-            Optional<Vector2D> centreOfMassAdj = centreOfMassVelocity(others, cohesionWeigh);
+            Optional<Vector2D> centreOfMassAdj = centreOfMassVelocity(others, cohesionWeight);
             if(centreOfMassAdj.isPresent()) {
                 velocity = velocity.plus(centreOfMassAdj.get());
             }
@@ -260,13 +260,6 @@ public class Boids extends Application {
     }
 
     static double DEBUG_MARKER_SIZE = 5;
-    static List<Rectangle> addDebugMarkersInCorner( List<Rectangle> nodes, final double xBound, double yBound) {
-        nodes.add(addDebugMarkers( 0, 0, DEBUG_MARKER_SIZE , DEBUG_MARKER_SIZE));
-        nodes.add(addDebugMarkers( xBound-DEBUG_MARKER_SIZE, 0, DEBUG_MARKER_SIZE , DEBUG_MARKER_SIZE));
-        nodes.add(addDebugMarkers( xBound-DEBUG_MARKER_SIZE, yBound-DEBUG_MARKER_SIZE, DEBUG_MARKER_SIZE , DEBUG_MARKER_SIZE));
-        nodes.add(addDebugMarkers( 0, yBound-DEBUG_MARKER_SIZE, DEBUG_MARKER_SIZE , DEBUG_MARKER_SIZE));
-        return nodes;
-    }
 
     static  List<Rectangle> reinitDebugMarkersInCorner( List<Rectangle> nodes, double xBound, double yBound) {
         nodes.clear();
@@ -333,7 +326,7 @@ public class Boids extends Application {
                 (ov, old_val, new_val) -> boids.forEach(b -> b.setAligmentWeight(new_val.doubleValue())));
 
         List<CustomMenuItem> centreOfMassControls = buildLabelAndSlider("Cohesion: %.3f", Boid.DEFAULT_WEIGHT, 0.1, Boid.MAX_WEIGHT,
-                (ov, old_val, new_val) -> boids.forEach(b -> b.setCohesionWeigh(new_val.doubleValue())));
+                (ov, old_val, new_val) -> boids.forEach(b -> b.setCohesionWeight(new_val.doubleValue())));
 
         List<CustomMenuItem> avoidControls = buildLabelAndSlider("Seperation: %.3f", Boid.DEFAULT_WEIGHT, 0.1, Boid.MAX_WEIGHT,
                 (ov, old_val, new_val) -> boids.forEach(b -> b.setSeperationWeight(new_val.doubleValue())));

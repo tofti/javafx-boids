@@ -8,10 +8,8 @@ import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.*;
 import javafx.scene.control.*;
-import javafx.scene.effect.BlendMode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Sphere;
@@ -44,8 +42,8 @@ public class Boids extends Application {
         double yBound;
 
         double aligmentWeight;
-        double avoidWeight;
-        double groupWeight;
+        double seperationWeight;
+        double cohesionWeigh;
 
         boolean colorSensitive;
 
@@ -85,8 +83,8 @@ public class Boids extends Application {
                                          random.nextDouble() * MAX_VELOCITY- 0.5 * MAX_VELOCITY);
 
             this.setAligmentWeight(DEFAULT_WEIGHT);
-            this.setAvoidWeight(DEFAULT_WEIGHT);
-            this.setGroupWeight(DEFAULT_WEIGHT);
+            this.setSeperationWeight(DEFAULT_WEIGHT);
+            this.setCohesionWeigh(DEFAULT_WEIGHT);
             this.setColorSensitive(COLOR_SENSITIVE_DEFAULT);
 
             this.sphere = new Sphere(RADIUS);
@@ -103,12 +101,12 @@ public class Boids extends Application {
             this.aligmentWeight = aligmentWeight;
         }
 
-        public void setAvoidWeight(double avoidWeight) {
-            this.avoidWeight = avoidWeight;
+        public void setSeperationWeight(double seperationWeight) {
+            this.seperationWeight = seperationWeight;
         }
 
-        public void setGroupWeight(double groupWeight) {
-            this.groupWeight = groupWeight;
+        public void setCohesionWeigh(double cohesionWeigh) {
+            this.cohesionWeigh = cohesionWeigh;
         }
 
         public double getXBound() {
@@ -141,12 +139,12 @@ public class Boids extends Application {
             List<Boid> others = Lists.newArrayList(all);
             others.remove(this);
 
-            Optional<Vector2D> centreOfMassAdj = centreOfMassVelocity(others, groupWeight);
+            Optional<Vector2D> centreOfMassAdj = centreOfMassVelocity(others, cohesionWeigh);
             if(centreOfMassAdj.isPresent()) {
                 velocity = velocity.plus(centreOfMassAdj.get());
             }
 
-            Optional<Vector2D> avoidOthersAdj = avoidOthersAdj(others, avoidWeight);
+            Optional<Vector2D> avoidOthersAdj = avoidOthersAdj(others, seperationWeight);
             if(avoidOthersAdj.isPresent()) {
                 velocity = velocity.plus(avoidOthersAdj.get());
             }
@@ -331,14 +329,14 @@ public class Boids extends Application {
         });
 
         final ContextMenu contextMenu = new ContextMenu();
-        List<CustomMenuItem> alignmentControls = buildLabelAndSlider("Alignment Co-efficient: %.3f", Boid.DEFAULT_WEIGHT, 0.1, Boid.MAX_WEIGHT,
+        List<CustomMenuItem> alignmentControls = buildLabelAndSlider("Alignment: %.3f", Boid.DEFAULT_WEIGHT, 0.1, Boid.MAX_WEIGHT,
                 (ov, old_val, new_val) -> boids.forEach(b -> b.setAligmentWeight(new_val.doubleValue())));
 
-        List<CustomMenuItem> centreOfMassControls = buildLabelAndSlider("Center of Mass: %.3f", Boid.DEFAULT_WEIGHT, 0.1, Boid.MAX_WEIGHT,
-                (ov, old_val, new_val) -> boids.forEach(b -> b.setGroupWeight(new_val.doubleValue())));
+        List<CustomMenuItem> centreOfMassControls = buildLabelAndSlider("Cohesion: %.3f", Boid.DEFAULT_WEIGHT, 0.1, Boid.MAX_WEIGHT,
+                (ov, old_val, new_val) -> boids.forEach(b -> b.setCohesionWeigh(new_val.doubleValue())));
 
-        List<CustomMenuItem> avoidControls = buildLabelAndSlider("Avoid Weight: %.3f", Boid.DEFAULT_WEIGHT, 0.1, Boid.MAX_WEIGHT,
-                (ov, old_val, new_val) -> boids.forEach(b -> b.setAvoidWeight(new_val.doubleValue())));
+        List<CustomMenuItem> avoidControls = buildLabelAndSlider("Seperation: %.3f", Boid.DEFAULT_WEIGHT, 0.1, Boid.MAX_WEIGHT,
+                (ov, old_val, new_val) -> boids.forEach(b -> b.setSeperationWeight(new_val.doubleValue())));
 
         contextMenu.getItems().addAll(alignmentControls);
         contextMenu.getItems().addAll(centreOfMassControls);

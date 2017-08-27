@@ -1,5 +1,4 @@
 /**
-
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
@@ -107,9 +106,7 @@ public class Boids extends Application {
 
             this.sphere = new Sphere(RADIUS);
             this.poly = new Polygon();
-            poly.getPoints().addAll(new Double[]{0.0, TRI_SIZE,
-                                                TRI_SIZE, -TRI_SIZE,
-                                                -TRI_SIZE, -TRI_SIZE });
+            poly.getPoints().addAll(new Double[]{0.0, TRI_SIZE, TRI_SIZE, -TRI_SIZE, -TRI_SIZE, -TRI_SIZE });
             poly.setCache(true);
             poly.setCacheHint(CacheHint.SPEED);
 
@@ -265,10 +262,7 @@ public class Boids extends Application {
         }
 
         List<Node> getNodes() {
-            return Arrays.asList(
-                    poly
-                    //, sphere
-                    );
+            return Arrays.asList(poly);
         }
 
         public void setColorSensitive(Boolean colorSensitive) {

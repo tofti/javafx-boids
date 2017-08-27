@@ -320,39 +320,35 @@ public class Boids extends Application {
     }
 
     @Override
-    public void start(Stage stage)
-    {
-
+    public void start(Stage stage) {
         PerspectiveCamera camera = new PerspectiveCamera(false);
 
         List<Boid> boids = initRandomBoids(1);
         Group root = new Group();
 
-        final List<Rectangle> debugNodes = Lists.newArrayList();
-
-        root.getChildren().addAll(debugNodes);
         root.getChildren().addAll(boids.stream().map(Boid::getNodes).flatMap(l -> l.stream()).collect(Collectors.toList()));
 
         Scene scene = new Scene(root, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, USE_DEPTH_BUFFER);
         scene.setCamera(camera);
         scene.setFill(Color.BLACK);
 
+        final List<Rectangle> debugNodes = Lists.newArrayList();
+        reinitDebugMarkersInCorner(debugNodes, scene.getWidth(), scene.getHeight());
+        root.getChildren().addAll(debugNodes);
+
         scene.heightProperty().addListener((obs, oldVal, newVal) -> {
             boids.stream().forEach(b -> b.setYBound(newVal.doubleValue()));
-            if(!Double.isNaN(stage.getWidth())) {
-                root.getChildren().removeAll(debugNodes);
-                reinitDebugMarkersInCorner(debugNodes, scene.getWidth(), scene.getHeight());
-                root.getChildren().addAll(debugNodes);
-            }
+            root.getChildren().removeAll(debugNodes);
+            reinitDebugMarkersInCorner(debugNodes, scene.getWidth(), scene.getHeight());
+            root.getChildren().addAll(debugNodes);
+
         });
 
         scene.widthProperty().addListener((obs, oldVal, newVal) -> {
             boids.stream().forEach(b -> b.setXBound(newVal.doubleValue()));
-            if(!Double.isNaN(stage.getHeight())) {
-                boolean removed = root.getChildren().removeAll(debugNodes);
-                reinitDebugMarkersInCorner(debugNodes, scene.getWidth(), scene.getHeight());
-                root.getChildren().addAll(debugNodes);
-            }
+            root.getChildren().removeAll(debugNodes);
+            reinitDebugMarkersInCorner(debugNodes, scene.getWidth(), scene.getHeight());
+            root.getChildren().addAll(debugNodes);
         });
 
         final ContextMenu contextMenu = new ContextMenu();

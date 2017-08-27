@@ -1,3 +1,19 @@
+/**
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.tofti;
 
 import com.google.common.collect.ImmutableList;
@@ -96,12 +112,8 @@ public class Boids extends Application {
                                                 -TRI_SIZE, -TRI_SIZE });
             poly.setCache(true);
             poly.setCacheHint(CacheHint.SPEED);
-            PhongMaterial material = new PhongMaterial();
-            color = COLORS.get(random.nextInt(COLORS.size()));
-            material.setDiffuseColor(color);
-            material.setSpecularColor(Color.WHITE);
-            sphere.setMaterial(material);
 
+            color = COLORS.get(random.nextInt(COLORS.size()));
             poly.setFill(color);
         }
 
@@ -310,18 +322,10 @@ public class Boids extends Application {
     @Override
     public void start(Stage stage)
     {
-        // Create a Light
-        PointLight light = new PointLight();
-        light.setTranslateX(350);
-        light.setTranslateY(100);
-        light.setTranslateZ(-300);
-        light.setColor(Color.AQUAMARINE);
 
         PerspectiveCamera camera = new PerspectiveCamera(false);
-        camera.setFieldOfView(35);
 
         List<Boid> boids = initRandomBoids(1);
-
         Group root = new Group();
 
         final List<Rectangle> debugNodes = Lists.newArrayList();
@@ -371,6 +375,9 @@ public class Boids extends Application {
         colorSensitive.selectedProperty().addListener((observable, oldValue, newValue) -> boids.forEach(b->b.setColorSensitive(newValue)));
         contextMenu.getItems().add(new CustomMenuItem(colorSensitive));
 
+        final Label fpsLabel = new Label();
+        contextMenu.getItems().add(new CustomMenuItem(fpsLabel));
+
         scene.setOnMouseClicked(e -> {
             if(e.getButton() == MouseButton.SECONDARY) {
                 contextMenu.show(stage, e.getScreenX(), e.getScreenY());
@@ -382,7 +389,6 @@ public class Boids extends Application {
             }
         });
 
-
         // Add the Scene to the Stage
         stage.setScene(scene);
         stage.setTitle("JavaFX Boids");
@@ -390,7 +396,7 @@ public class Boids extends Application {
         AnimationTimer t = new AnimationTimer() {
             @Override public void handle(long now) {
                 boids.stream().forEach(b -> b.updateAndRender(boids));
-                System.out.println(PerformanceTracker.getSceneTracker(scene).getAverageFPS());
+                fpsLabel.setText(String.format("FPS: %.3f", PerformanceTracker.getSceneTracker(scene).getAverageFPS()));
             }
         };
         t.start();

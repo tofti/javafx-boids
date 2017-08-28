@@ -1,6 +1,6 @@
 # javafx-boids - a JavaFX implementation of the Artificial Life flocking algorithm "Boids"
 
-![javafx-boids](https://github.com/tofti/javafx-boids/blob/master/examples/Example1.png "javafx-boids")
+![javafx-boids](https://github.com/tofti/javafx-boids/blob/master/examples/ExampleAnimated.gif "javafx-boids")
 
 
 ### Background

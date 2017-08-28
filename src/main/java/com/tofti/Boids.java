@@ -289,18 +289,68 @@ public class Boids extends Application {
         return boids;
     }
 
+    void reinit(List<Boid> boids, Group root, List<Slider> sliders) {
+        root.getChildren().removeAll(boids.stream().map(Boid::getNodes).flatMap(l -> l.stream()).collect(Collectors.toList()));
+        boids.clear();
+        boids.addAll(initRandomBoids(1));
+        root.getChildren().addAll(boids.stream().map(Boid::getNodes).flatMap(l -> l.stream()).collect(Collectors.toList()));
+
+        sliders.stream().forEach(s -> s.valueProperty().set(Boid.DEFAULT_WEIGHT));
+    }
+
     @Override
     public void start(Stage stage) {
         PerspectiveCamera camera = new PerspectiveCamera(false);
 
-        List<Boid> boids = initRandomBoids(1);
         Group root = new Group();
-
-        root.getChildren().addAll(boids.stream().map(Boid::getNodes).flatMap(l -> l.stream()).collect(Collectors.toList()));
-
         Scene scene = new Scene(root, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, USE_DEPTH_BUFFER);
-        scene.setCamera(camera);
-        scene.setFill(Color.BLACK);
+        final ContextMenu contextMenu = new ContextMenu();
+        final List<Boid> boids = Lists.newArrayList();
+
+        Slider alignmentSlider = new Slider();
+        List<CustomMenuItem> alignmentControls = buildLabelAndSlider(alignmentSlider, "Alignment: %.3f", 0.1,
+                Boid.MAX_WEIGHT, (ov, old_val, new_val) -> boids.forEach(b -> b.setAligmentWeight(new_val.doubleValue())));
+
+        Slider cohesionSlider = new Slider();
+        List<CustomMenuItem> cohesionControls = buildLabelAndSlider(cohesionSlider, "Cohesion: %.3f", 0.1, Boid.MAX_WEIGHT,
+                (ov, old_val, new_val) -> boids.forEach(b -> b.setCohesionWeight(new_val.doubleValue())));
+
+        Slider seperationSlider = new Slider();
+        List<CustomMenuItem> seperationControls = buildLabelAndSlider(seperationSlider, "Seperation: %.3f", 0.1, Boid.MAX_WEIGHT,
+                (ov, old_val, new_val) -> boids.forEach(b -> b.setSeperationWeight(new_val.doubleValue())));
+
+        contextMenu.getItems().addAll(alignmentControls);
+        contextMenu.getItems().addAll(cohesionControls);
+        contextMenu.getItems().addAll(seperationControls);
+
+        final List<Slider> allSliders = Arrays.asList(alignmentSlider, cohesionSlider, seperationSlider);
+
+        ToggleButton colorSensitive = new ToggleButton();
+        colorSensitive.setSelected(Boid.COLOR_SENSITIVE_DEFAULT);
+        colorSensitive.setText("Color Sensitive");
+        colorSensitive.selectedProperty().addListener((observable, oldValue, newValue) -> boids.forEach(b->b.setColorSensitive(newValue)));
+        contextMenu.getItems().add(new CustomMenuItem(colorSensitive));
+
+        Button reset = new Button();
+        reset.setText("Reset");
+        reset.setOnAction(e -> reinit(boids, root, allSliders));
+        contextMenu.getItems().add(new CustomMenuItem(reset));
+
+        final Label fpsLabel = new Label();
+        contextMenu.getItems().add(new CustomMenuItem(fpsLabel));
+
+        reinit(boids, root, allSliders);
+
+        scene.setOnMouseClicked(e -> {
+            if(e.getButton() == MouseButton.SECONDARY) {
+                contextMenu.show(stage, e.getScreenX(), e.getScreenY());
+            }
+            if(e.getButton() == MouseButton.PRIMARY) {
+                Boid newBoid = new Boid(e.getSceneX(), e.getSceneY(), scene.getWidth(), scene.getHeight());
+                boids.add(newBoid);
+                root.getChildren().addAll(newBoid.getNodes());
+            }
+        });
 
         final List<Rectangle> debugNodes = Lists.newArrayList();
         reinitDebugMarkersInCorner(debugNodes, scene.getWidth(), scene.getHeight());
@@ -321,41 +371,9 @@ public class Boids extends Application {
             root.getChildren().addAll(debugNodes);
         });
 
-        final ContextMenu contextMenu = new ContextMenu();
-        List<CustomMenuItem> alignmentControls = buildLabelAndSlider("Alignment: %.3f", Boid.DEFAULT_WEIGHT, 0.1, Boid.MAX_WEIGHT,
-                (ov, old_val, new_val) -> boids.forEach(b -> b.setAligmentWeight(new_val.doubleValue())));
-
-        List<CustomMenuItem> centreOfMassControls = buildLabelAndSlider("Cohesion: %.3f", Boid.DEFAULT_WEIGHT, 0.1, Boid.MAX_WEIGHT,
-                (ov, old_val, new_val) -> boids.forEach(b -> b.setCohesionWeight(new_val.doubleValue())));
-
-        List<CustomMenuItem> avoidControls = buildLabelAndSlider("Seperation: %.3f", Boid.DEFAULT_WEIGHT, 0.1, Boid.MAX_WEIGHT,
-                (ov, old_val, new_val) -> boids.forEach(b -> b.setSeperationWeight(new_val.doubleValue())));
-
-        contextMenu.getItems().addAll(alignmentControls);
-        contextMenu.getItems().addAll(centreOfMassControls);
-        contextMenu.getItems().addAll(avoidControls);
-
-        ToggleButton colorSensitive = new ToggleButton();
-        colorSensitive.setSelected(Boid.COLOR_SENSITIVE_DEFAULT);
-        colorSensitive.setText("Color Sensitive?");
-        colorSensitive.selectedProperty().addListener((observable, oldValue, newValue) -> boids.forEach(b->b.setColorSensitive(newValue)));
-        contextMenu.getItems().add(new CustomMenuItem(colorSensitive));
-
-        final Label fpsLabel = new Label();
-        contextMenu.getItems().add(new CustomMenuItem(fpsLabel));
-
-        scene.setOnMouseClicked(e -> {
-            if(e.getButton() == MouseButton.SECONDARY) {
-                contextMenu.show(stage, e.getScreenX(), e.getScreenY());
-            }
-            if(e.getButton() == MouseButton.PRIMARY) {
-                Boid newBoid = new Boid(e.getSceneX(), e.getSceneY(), scene.getWidth(), scene.getHeight());
-                boids.add(newBoid);
-                root.getChildren().addAll(newBoid.getNodes());
-            }
-        });
-
         // Add the Scene to the Stage
+        scene.setCamera(camera);
+        scene.setFill(Color.BLACK);
         stage.setScene(scene);
         stage.setTitle("JavaFX Boids");
 
@@ -369,8 +387,7 @@ public class Boids extends Application {
         stage.show();
     }
 
-    static List<CustomMenuItem> buildLabelAndSlider(final String labelText, double initValue, double blockIncrement, double max, ChangeListener<Number> changeListener) {
-        Slider slider = new Slider();
+    static List<CustomMenuItem> buildLabelAndSlider(Slider slider, final String labelText, double blockIncrement, double max, ChangeListener<Number> changeListener) {
         slider.setBlockIncrement(blockIncrement);
         slider.setMax(max);
         Label label = new Label();
@@ -383,7 +400,6 @@ public class Boids extends Application {
         slider.valueProperty().addListener((ov, old_val, new_val) -> {
             label.setText(String.format(labelText, new_val));
         });
-        slider.valueProperty().set(initValue);
         return Arrays.asList(sliderLabelMenuItem, sliderMenuItem);
     }
 }

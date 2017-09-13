@@ -51,17 +51,17 @@ public class Boids extends Application {
         Polygon poly;
         Color color;
 
-        final static double MAX_VELOCITY = 3;
+        static final double MAX_VELOCITY = 3;
 
-        final static int LOC_Z = 0;
-        final static int RADIUS = 5;
-        final static double TRI_SIZE = 8d;
+        static final int LOC_Z = 0;
+        static final int RADIUS = 5;
+        static final double TRI_SIZE = 8d;
 
         static final double SEPERATION_DISTANCE = 10 * TRI_SIZE;
         static final double ALIGNMENT_DISTANCE = 15 * TRI_SIZE;
         static final double CENTER_OF_MASS_NEIGHBORHOOD = 25 * TRI_SIZE;
-        public static final double DEFAULT_WEIGHT = 0.5d;
-        public static final double MAX_WEIGHT = 3d;
+        static final double DEFAULT_WEIGHT = 0.5d;
+        static final double MAX_WEIGHT = 3d;
 
         static Function<Boid, Vector2D> TO_LOCATION_VECTOR_2D = b -> b.location;
         static Function<Boid, Vector2D> TO_VELOCITY_VECTOR_2D = b -> b.velocity;
@@ -72,15 +72,15 @@ public class Boids extends Application {
         static Function<List<Boid>, List<Vector2D>> TO_VELOCITY_VECTOR_2D_LIST
                 = lb -> lb.stream().map(TO_VELOCITY_VECTOR_2D).collect(Collectors.toList());
 
-        static Random random = new Random(System.currentTimeMillis());
+        static final Random RNG = new Random(System.currentTimeMillis());
         static final ImmutableList<Color> COLORS = ImmutableList.of(Color.RED, Color.GREEN, Color.BLUE, Color.CYAN);
 
         Boid(double locX, double locY, double xBound, double yBound) {
             this.location = new Vector2D(locX, locY);
             this.xBound = xBound;
             this.yBound = yBound;
-            this.velocity = new Vector2D(random.nextDouble() * MAX_VELOCITY - 0.5 * MAX_VELOCITY,
-                                         random.nextDouble() * MAX_VELOCITY- 0.5 * MAX_VELOCITY);
+            this.velocity = new Vector2D(RNG.nextDouble() * MAX_VELOCITY - 0.5 * MAX_VELOCITY,
+                                         RNG.nextDouble() * MAX_VELOCITY- 0.5 * MAX_VELOCITY);
 
             this.setAligmentWeight(DEFAULT_WEIGHT);
             this.setSeperationWeight(DEFAULT_WEIGHT);
@@ -93,7 +93,7 @@ public class Boids extends Application {
             poly.setCache(true);
             poly.setCacheHint(CacheHint.SPEED);
 
-            color = COLORS.get(random.nextInt(COLORS.size()));
+            color = COLORS.get(RNG.nextInt(COLORS.size()));
             poly.setFill(color);
         }
 
@@ -154,8 +154,8 @@ public class Boids extends Application {
                 velocity = velocity.plus(alignmentAdj.get());
             }
 
-            if(random.nextDouble() < 0.01) {
-                velocity = velocity.plus(new Vector2D(random.nextDouble() - 0.5, random.nextDouble() - 0.5).normalizeTo(0.5));
+            if(RNG.nextDouble() < 0.01) {
+                velocity = velocity.plus(new Vector2D(RNG.nextDouble() - 0.5, RNG.nextDouble() - 0.5).normalizeTo(0.5));
             }
 
             velocity = velocity.normalizeTo(MAX_VELOCITY);
@@ -294,7 +294,6 @@ public class Boids extends Application {
         boids.clear();
         boids.addAll(initRandomBoids(1));
         root.getChildren().addAll(boids.stream().map(Boid::getNodes).flatMap(l -> l.stream()).collect(Collectors.toList()));
-
         sliders.stream().forEach(s -> s.valueProperty().set(Boid.DEFAULT_WEIGHT));
     }
 

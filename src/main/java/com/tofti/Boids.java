@@ -32,6 +32,7 @@ public class Boids extends Application {
     private static int DEFAULT_WINDOW_WIDTH = 1024;
     private static int DEFAULT_WINDOW_HEIGHT = 768;
     private static boolean USE_DEPTH_BUFFER = true;
+    private static double DEBUG_MARKER_SIZE = 5;
 
     static class Boid {
         public static final boolean COLOR_SENSITIVE_DEFAULT = false;
@@ -258,8 +259,6 @@ public class Boids extends Application {
         tl.setFill(Color.RED);
         return tl;
     }
-
-    static double DEBUG_MARKER_SIZE = 5;
 
     static  List<Rectangle> reinitDebugMarkersInCorner( List<Rectangle> nodes, double xBound, double yBound) {
         nodes.clear();

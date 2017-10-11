@@ -17,16 +17,8 @@ public class Vector2D {
         return x;
     }
 
-    public void setX(double x) {
-        this.x = x;
-    }
-
     public double getY() {
         return y;
-    }
-
-    public void setY(double y) {
-        this.y = y;
     }
 
     public Vector2D plus(Vector2D arg) {
@@ -85,16 +77,8 @@ public class Vector2D {
         return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
     }
 
-    public static List<Vector2D> withinDistanceOf(final List<Vector2D> vectors, final Vector2D from,
-                                                  final double distance) {
-        return vectors.stream().filter(v -> v.getDistanceFrom(from) <= distance).collect(Collectors.toList());
-    }
-
     @Override
     public String toString() {
-        return "Vector2D{" +
-                "x=" + x +
-                ", y=" + y +
-                '}';
+        return "Vector2D{" + "x=" + x +", y=" + y +'}';
     }
 }
